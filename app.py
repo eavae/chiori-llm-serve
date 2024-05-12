@@ -33,10 +33,11 @@ from transformers import AutoTokenizer, AutoModelForCausalLM  # isort: skip
 
 logger = logging.get_logger(__name__)
 
-base_path = './chiori'
-if not os.path.exists('./chiori'):
-    os.system(f"git clone https://code.openxlab.org.cn/fisher_lee/chiori.git {base_path}")
-    os.system(f'cd {base_path} && git lfs pull')
+MODEL_PATH = './chiori'
+
+if not os.path.exists(MODEL_PATH):
+    os.system(f"git clone https://code.openxlab.org.cn/fisher_lee/chiori.git {MODEL_PATH}")
+    os.system(f'cd {MODEL_PATH} && git lfs pull')
 
 
 @dataclass
@@ -65,7 +66,7 @@ def generate_interactive(
     inputs = tokenizer([prompt], padding=True, return_tensors='pt')
     input_length = len(inputs['input_ids'][0])
     for k, v in inputs.items():
-        inputs[k] = v.cuda()
+        inputs[k] = v
     input_ids = inputs['input_ids']
     _, input_ids_seq_length = input_ids.shape[0], input_ids.shape[-1]
     if generation_config is None:
@@ -187,11 +188,8 @@ def on_btn_click():
 
 @st.cache_resource
 def load_model():
-    model = (AutoModelForCausalLM.from_pretrained('./chiori',
-                                                  trust_remote_code=True).to(
-                                                      torch.bfloat16).cuda())
-    tokenizer = AutoTokenizer.from_pretrained('./chiori',
-                                              trust_remote_code=True)
+    model = (AutoModelForCausalLM.from_pretrained(MODEL_PATH, trust_remote_code=True))
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, trust_remote_code=True)
     return model, tokenizer
 
 
@@ -284,7 +282,7 @@ def main():
             'role': 'robot',
             'content': cur_response,  # pylint: disable=undefined-loop-variable
         })
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
 
 
 if __name__ == '__main__':
