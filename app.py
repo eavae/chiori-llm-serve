@@ -14,6 +14,8 @@ Please run with the command `streamlit run path/to/web_demo.py
     --server.address=0.0.0.0 --server.port 7860`.
 Using `python path/to/web_demo.py` may cause unknown problems.
 """
+import os
+
 # isort: skip_file
 import copy
 import warnings
@@ -30,6 +32,11 @@ from transformers.utils import logging
 from transformers import AutoTokenizer, AutoModelForCausalLM  # isort: skip
 
 logger = logging.get_logger(__name__)
+
+base_path = './chiori'
+if not os.path.exists('./chiori'):
+    os.system(f"git clone https://code.openxlab.org.cn/fisher_lee/chiori.git {base_path}")
+    os.system(f'cd {base_path} && git lfs pull')
 
 
 @dataclass
